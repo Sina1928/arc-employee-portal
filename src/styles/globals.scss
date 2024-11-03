@@ -1,0 +1,18 @@
+@use "./animations.scss" as *;
+@use "./reset.scss" as *;
+@use "./variables.scss" as *;
+@use "./mixins.scss" as *;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  margin: 0;
+}
+
+::selection {
+  background-color: $primary-color;
+  color: #ffffff;
+}

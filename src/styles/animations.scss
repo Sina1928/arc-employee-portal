@@ -1,0 +1,41 @@
+@use "./variables" as *;
+
+@mixin fade-in($duration: 0.3s) {
+  animation: fadeIn $duration ease-in;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@mixin danger-shake($duration: 0.4s) {
+  animation: dangerShaking $duration ease-in;
+
+  @keyframes dangerShaking {
+    0% {
+      transform: translateX(0);
+      border: 0.0625rem solid $danger-color;
+    }
+    25% {
+      transform: translateX(-0.25rem);
+      border: 0.0625rem solid $danger-color;
+    }
+    50% {
+      transform: translateX(0.25rem);
+      border: 0.0625rem solid $danger-color;
+    }
+    75% {
+      transform: translateX(-0.25rem);
+      border: 0.0625rem solid $danger-color;
+    }
+    100% {
+      transform: translateX(0);
+      border: 0.0625rem solid $danger-color;
+    }
+  }
+}
