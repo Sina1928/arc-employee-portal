@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Core User Model
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  microsoftId   String?   @unique  // Microsoft 365 ID
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  role          Role      @default(EMPLOYEE)
+  position      String
+  department    String?
+  hireDate      DateTime  @map("hire_date")
+  phone         String?
+  isActive      Boolean   @default(true) @map("is_active")
+  qbEmployeeId String?   @unique @map("qb_employee_id") // QuickBooks Employee ID
+  payrollRecords PayrollRecord[]
+submittedExpenses  Expense[]
+  approvedExpenses   Expense[]  @relation("ExpenseApprovals")
+
+  // Relationships
+  timeEntries     TimeEntry[]
+  overtimeBank    OvertimeBank?
+  projectMembers  ProjectMember[]
+  documents       Document[]
+  createdProjects Project[]    @relation("ProjectCreator")
+  
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+// Time Tracking
+model TimeEntry {
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  user        User          @relation(fields: [userId], references: [id])
+  projectId   String?       @map("project_id")
+  project     Project?      @relation(fields: [projectId], references: [id])
+  date        DateTime
+  hours       Float
+  type        TimeEntryType
+  description String?
+  status      ApprovalStatus @default(PENDING)
+  location    Json?         // GPS coordinates
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  @@index([date]) // For date-based queries
+  @@index([status]) // For status filtering
+  @@map("time_entries")
+}
+
+enum TimeEntryType {
+  REGULAR
+  OVERTIME
+  VACATION
+  SICK_LEAVE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Project Management
+model Project {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  status        ProjectStatus @default(PLANNED)
+  startDate     DateTime  @map("start_date")
+  endDate       DateTime? @map("end_date")
+  budget        Float?
+  clientName    String?   @map("client_name")
+  location      Json?     // GPS coordinates
+  teamsChannelId String?  @unique @map("teams_channel_id")  // MS Teams Channel ID
+  deletedAt     DateTime? @map("deleted_at")
+
+  // Relationships
+  creatorId     String    @map("creator_id")
+  creator       User      @relation("ProjectCreator", fields: [creatorId], references: [id])
+  members       ProjectMember[]
+  timeEntries   TimeEntry[]
+  documents     Document[]
+  expenses      Expense[]  // Add this line
+
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@index([status]) // For filtering active projects
+  @@index([clientName]) // If you'll be searching by client
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  PLANNED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+}
+
+// Project Members
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  project   Project  @relation(fields: [projectId], references: [id])
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  role      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([projectId, userId])
+  @@map("project_members")
+}
+
+// Document Management (integrated with SharePoint)
+model Document {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  sharepointUrl String   @map("sharepoint_url")  // SharePoint file URL
+  projectId     String?  @map("project_id")
+  project       Project? @relation(fields: [projectId], references: [id])
+  uploadedById  String   @map("uploaded_by_id")
+  uploadedBy    User     @relation(fields: [uploadedById], references: [id])
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  fileSize     Int?      @map("file_size") // in bytes
+  mimeType     String?   @map("mime_type") // file type
+  version      Int       @default(1)        // version tracking
+  deletedAt   DateTime?  @map("deleted_at")
+
+
+  @@map("documents")
+}
+
+// Overtime Bank
+model OvertimeBank {
+  id          String   @id @default(cuid())
+  userId      String   @unique @map("user_id")
+  user        User     @relation(fields: [userId], references: [id])
+  hours       Float    @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("overtime_bank")
+}
+
+// Microsoft Integration Settings
+model MicrosoftIntegration {
+  id        String   @id @default(cuid())
+  tenantId  String   @unique @map("tenant_id")  // Microsoft 365 tenant ID
+  settings  Json     // Store Teams/SharePoint settings
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("microsoft_integrations")
+}
+
+// QuickBooks Integration
+model QuickBooksIntegration {
+  id              String   @id @default(cuid())
+  realmId         String   @unique // QuickBooks company ID
+  accessToken     String   @db.Text
+  refreshToken    String   @db.Text
+  tokenExpiresAt  DateTime
+  lastSyncedAt    DateTime?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("quickbooks_integration")
+}
+
+// Employee Payroll Records
+model PayrollRecord {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id])
+  periodStart DateTime @map("period_start")
+  periodEnd   DateTime @map("period_end")
+  regularHours Float
+  overtimeHours Float?
+  grossPay    Float
+  netPay      Float
+  status      PayrollStatus @default(PENDING)
+  qbEmployeeId String    @map("qb_employee_id") // QuickBooks Employee ID
+  qbPaycheckId String?   @map("qb_paycheck_id") // QuickBooks Paycheck ID
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+@@index([periodStart, periodEnd]) // For period queries
+  @@index([status]) // For status filtering
+  @@map("payroll_records")
+}
+
+enum PayrollStatus {
+  PENDING
+  PROCESSED
+  PAID
+  ERROR
+}
+
+enum ExpenseStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  REIMBURSED
+  CANCELLED
+}
+
+enum ExpenseCategory {
+  MATERIALS
+  EQUIPMENT
+  VEHICLE
+  TRAVEL
+  MEALS
+  SUPPLIES
+  OTHER
+}
+
+model Expense {
+  id            String         @id @default(cuid())
+  userId        String         @map("user_id")
+  user          User           @relation(fields: [userId], references: [id])
+  projectId     String?        @map("project_id")
+  project       Project?       @relation(fields: [projectId], references: [id])
+  description   String
+  amount        Float
+  date          DateTime
+  category      ExpenseCategory
+  status        ExpenseStatus  @default(DRAFT)
+  receipt       ExpenseReceipt?
+  notes         String?
+  qbExpenseId   String?        @map("qb_expense_id") // QuickBooks reference
+  approvedById  String?        @map("approved_by_id")
+  approvedBy    User?          @relation("ExpenseApprovals", fields: [approvedById], references: [id])
+  approvedAt    DateTime?      @map("approved_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  @@index([userId, status])
+  @@index([projectId])
+  @@map("expenses")
+}
+
+model ExpenseReceipt {
+  id          String   @id @default(cuid())
+  expenseId   String   @unique @map("expense_id")
+  expense     Expense  @relation(fields: [expenseId], references: [id])
+  fileName    String   @map("file_name")
+  fileUrl     String   @map("file_url") // SharePoint URL
+  uploadedAt  DateTime @default(now()) @map("uploaded_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("expense_receipts")
+}
