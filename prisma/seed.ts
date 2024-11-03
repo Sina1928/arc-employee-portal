@@ -16,7 +16,7 @@ interface SeedResult {
   employeesCount: number;
   project: any;
   document: any;
-  expense: any;
+  expense: any | null;
   payroll: any;
 }
 
