@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-// import { quickBooks } from "@/lib/quickbooks";
-// import { microsoftGraph } from "@/lib/microsoft";
-// import { env } from "@/lib/config/env";
 import type { ExpenseStatus, ExpenseCategory, Prisma } from "@prisma/client";
 
 export interface ExpenseWithRelations
