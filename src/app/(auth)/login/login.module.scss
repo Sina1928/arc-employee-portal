@@ -1,4 +1,6 @@
-// Define variables
+@use "sass:color";
+
+// Variables
 $primary-color: #2563eb;
 $error-color: #dc2626;
 $text-color: #333;
@@ -65,11 +67,11 @@ $background-gradient-end: #c3cfe2;
   transition: background-color 0.2s;
 
   &:hover {
-    background: darken($primary-color, 10%);
+    background: color.adjust($primary-color, $lightness: -10%);
   }
 
   &:disabled {
-    background: lighten($primary-color, 20%);
+    background: color.adjust($primary-color, $lightness: 20%);
     cursor: not-allowed;
   }
 }
