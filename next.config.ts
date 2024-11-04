@@ -1,12 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: [
-      "@prisma/client",
-      "@microsoft/microsoft-graph-client",
-    ],
-  },
+  serverExternalPackages: [
+    "@prisma/client",
+    "@microsoft/microsoft-graph-client",
+  ],
+
   webpack: (config, { isServer }) => {
     if (isServer) {
       // Convert externals to array if it's not already
