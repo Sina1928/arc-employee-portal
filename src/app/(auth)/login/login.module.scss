@@ -1,0 +1,96 @@
+// Define variables
+$primary-color: #2563eb;
+$error-color: #dc2626;
+$text-color: #333;
+$background-gradient-start: #f5f7fa;
+$background-gradient-end: #c3cfe2;
+
+.loginContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background: linear-gradient(
+    135deg,
+    $background-gradient-start 0%,
+    $background-gradient-end 100%
+  );
+}
+
+.loginCard {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.logoSection {
+  margin-bottom: 2rem;
+
+  h1 {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    color: $text-color;
+  }
+}
+
+.loginSection {
+  .error {
+    background: #fee2e2;
+    color: $error-color;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+.microsoftButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: darken($primary-color, 10%);
+  }
+
+  &:disabled {
+    background: lighten($primary-color, 20%);
+    cursor: not-allowed;
+  }
+}
+
+.info {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
