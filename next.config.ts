@@ -1,24 +1,39 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverExternalPackages: [
-      "@prisma/client",
-      "@microsoft/microsoft-graph-client",
-    ],
+    serverActions: {
+      bodySizeLimit: "50mb",
+    },
   },
-  typescript: {
-    ignoreBuildErrors: false,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  output: "standalone",
   webpack: (config: any) => {
     return config;
   },
 };
 
 export default nextConfig;
+
+// /** @type {import('next').NextConfig} */
+// const nextConfig = {
+//   experimental: {
+//     serverExternalPackages: [
+//       "@prisma/client",
+//       "@microsoft/microsoft-graph-client",
+//     ],
+//     serverActions: true,
+//   },
+//   typescript: {
+//     ignoreBuildErrors: false,
+//   },
+//   eslint: {
+//     ignoreDuringBuilds: true,
+//   },
+//   output: "standalone",
+//   webpack: (config: any) => {
+//     return config;
+//   },
+// };
+
+// export default nextConfig;
 
 // import type { NextConfig } from "next";
 
