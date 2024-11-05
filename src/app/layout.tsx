@@ -1,5 +1,11 @@
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import type { Metadata } from "next";
 import "@/styles/globals.scss";
+
+export const metadata: Metadata = {
+  title: "Construction Portal",
+  description: "Employee portal for construction company",
+};
 
 export default function RootLayout({
   children,
