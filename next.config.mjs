@@ -5,7 +5,7 @@ const nextConfig = {
       bodySizeLimit: "50mb",
     },
   },
-  webpack: (config: any) => {
+  webpack: (config) => {
     return config;
   },
 };

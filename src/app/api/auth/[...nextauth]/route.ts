@@ -1,9 +1,6 @@
-import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth/auth.config";
+import { GET, POST } from "@/lib/auth/auth";
 
-const handler = NextAuth(authConfig);
-
-export { handler as GET, handler as POST };
+export { GET, POST };
 
 // import NextAuth from "next-auth";
 // import AzureADProvider from "next-auth/providers/azure-ad";

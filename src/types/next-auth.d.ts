@@ -1,11 +1,5 @@
-import type { DefaultSession, DefaultUser } from "next-auth";
-
-// Define Role enum
-export enum Role {
-  ADMIN = "ADMIN",
-  MANAGER = "MANAGER",
-  EMPLOYEE = "EMPLOYEE",
-}
+import type { DefaultSession } from "next-auth";
+import type { Role } from "@prisma/client"; // Import Role from Prisma
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -16,10 +10,10 @@ declare module "next-auth" {
       role?: Role;
       position?: string;
       department?: string | null;
-    };
+    } & DefaultSession["user"];
   }
 
-  interface User extends DefaultUser {
+  interface User {
     id: string;
     role?: Role;
     position?: string;
