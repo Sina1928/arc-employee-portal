@@ -1,13 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: [
+    serverExternalPackages: [
       "@prisma/client",
       "@microsoft/microsoft-graph-client",
     ],
-  },
-  env: {
-    NODE_ENV: process.env.NODE_ENV,
   },
   typescript: {
     ignoreBuildErrors: false,
