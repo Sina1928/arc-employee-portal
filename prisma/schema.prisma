@@ -20,23 +20,23 @@ model User {
   hireDate      DateTime  @map("hire_date")
   phone         String?
   isActive      Boolean   @default(true) @map("is_active")
-  qbEmployeeId String?   @unique @map("qb_employee_id") // QuickBooks Employee ID
-  payrollRecords PayrollRecord[]
-submittedExpenses  Expense[]
-  approvedExpenses   Expense[]  @relation("ExpenseApprovals")
-
+  
   // Relationships
   timeEntries     TimeEntry[]
   overtimeBank    OvertimeBank?
   projectMembers  ProjectMember[]
   documents       Document[]
   createdProjects Project[]    @relation("ProjectCreator")
+  payrollRecords  PayrollRecord[]
+  submittedExpenses  Expense[]
+  approvedExpenses   Expense[]  @relation("ExpenseApprovals")
   
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   @@map("users")
 }
+
 
 enum Role {
   ADMIN
@@ -174,39 +174,26 @@ model MicrosoftIntegration {
   @@map("microsoft_integrations")
 }
 
-// QuickBooks Integration
-model QuickBooksIntegration {
-  id              String   @id @default(cuid())
-  realmId         String   @unique // QuickBooks company ID
-  accessToken     String   @db.Text
-  refreshToken    String   @db.Text
-  tokenExpiresAt  DateTime
-  lastSyncedAt    DateTime?
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
 
-  @@map("quickbooks_integration")
-}
+
 
 // Employee Payroll Records
 model PayrollRecord {
-  id          String   @id @default(cuid())
-  userId      String   @map("user_id")
-  user        User     @relation(fields: [userId], references: [id])
-  periodStart DateTime @map("period_start")
-  periodEnd   DateTime @map("period_end")
-  regularHours Float
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id])
+  periodStart   DateTime @map("period_start")
+  periodEnd     DateTime @map("period_end")
+  regularHours  Float
   overtimeHours Float?
-  grossPay    Float
-  netPay      Float
-  status      PayrollStatus @default(PENDING)
-  qbEmployeeId String    @map("qb_employee_id") // QuickBooks Employee ID
-  qbPaycheckId String?   @map("qb_paycheck_id") // QuickBooks Paycheck ID
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  grossPay      Float
+  netPay        Float
+  status        PayrollStatus @default(PENDING)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
-@@index([periodStart, periodEnd]) // For period queries
-  @@index([status]) // For status filtering
+  @@index([periodStart, periodEnd])
+  @@index([status])
   @@map("payroll_records")
 }
 
@@ -249,7 +236,6 @@ model Expense {
   status        ExpenseStatus  @default(DRAFT)
   receipt       ExpenseReceipt?
   notes         String?
-  qbExpenseId   String?        @map("qb_expense_id") // QuickBooks reference
   approvedById  String?        @map("approved_by_id")
   approvedBy    User?          @relation("ExpenseApprovals", fields: [approvedById], references: [id])
   approvedAt    DateTime?      @map("approved_at")

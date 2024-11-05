@@ -32,7 +32,6 @@ CREATE TABLE "users" (
     "hire_date" TIMESTAMP(3) NOT NULL,
     "phone" TEXT,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "qb_employee_id" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -129,20 +128,6 @@ CREATE TABLE "microsoft_integrations" (
 );
 
 -- CreateTable
-CREATE TABLE "quickbooks_integration" (
-    "id" TEXT NOT NULL,
-    "realmId" TEXT NOT NULL,
-    "accessToken" TEXT NOT NULL,
-    "refreshToken" TEXT NOT NULL,
-    "tokenExpiresAt" TIMESTAMP(3) NOT NULL,
-    "lastSyncedAt" TIMESTAMP(3),
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "quickbooks_integration_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "payroll_records" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
@@ -153,8 +138,6 @@ CREATE TABLE "payroll_records" (
     "grossPay" DOUBLE PRECISION NOT NULL,
     "netPay" DOUBLE PRECISION NOT NULL,
     "status" "PayrollStatus" NOT NULL DEFAULT 'PENDING',
-    "qb_employee_id" TEXT NOT NULL,
-    "qb_paycheck_id" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -172,7 +155,6 @@ CREATE TABLE "expenses" (
     "category" "ExpenseCategory" NOT NULL,
     "status" "ExpenseStatus" NOT NULL DEFAULT 'DRAFT',
     "notes" TEXT,
-    "qb_expense_id" TEXT,
     "approved_by_id" TEXT,
     "approved_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -201,9 +183,6 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE UNIQUE INDEX "users_microsoftId_key" ON "users"("microsoftId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_qb_employee_id_key" ON "users"("qb_employee_id");
-
--- CreateIndex
 CREATE INDEX "time_entries_date_idx" ON "time_entries"("date");
 
 -- CreateIndex
@@ -226,9 +205,6 @@ CREATE UNIQUE INDEX "overtime_bank_user_id_key" ON "overtime_bank"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "microsoft_integrations_tenant_id_key" ON "microsoft_integrations"("tenant_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "quickbooks_integration_realmId_key" ON "quickbooks_integration"("realmId");
 
 -- CreateIndex
 CREATE INDEX "payroll_records_period_start_period_end_idx" ON "payroll_records"("period_start", "period_end");

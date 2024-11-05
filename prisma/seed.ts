@@ -1,16 +1,34 @@
-// prisma/seed.ts
-import {
-  PrismaClient,
-  Role,
-  ProjectStatus,
-  ExpenseCategory,
-} from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+// import { prisma } from "../src/lib/db/prisma";
 
 const prisma = new PrismaClient();
 
+// Define the enums manually to match your schema
+enum Role {
+  ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+  EMPLOYEE = "EMPLOYEE",
+}
+
+enum ProjectStatus {
+  PLANNED = "PLANNED",
+  IN_PROGRESS = "IN_PROGRESS",
+  ON_HOLD = "ON_HOLD",
+  COMPLETED = "COMPLETED",
+}
+
+enum ExpenseCategory {
+  MATERIALS = "MATERIALS",
+  EQUIPMENT = "EQUIPMENT",
+  VEHICLE = "VEHICLE",
+  TRAVEL = "TRAVEL",
+  MEALS = "MEALS",
+  SUPPLIES = "SUPPLIES",
+  OTHER = "OTHER",
+}
+
 interface SeedResult {
   msIntegration: any;
-  qbIntegration: any;
   admin: any;
   manager: any;
   employeesCount: number;
@@ -33,7 +51,6 @@ async function main(): Promise<SeedResult> {
     prisma.overtimeBank.deleteMany(),
     prisma.user.deleteMany(),
     prisma.microsoftIntegration.deleteMany(),
-    prisma.quickBooksIntegration.deleteMany(),
   ]);
 
   // Create Microsoft integration
@@ -45,16 +62,6 @@ async function main(): Promise<SeedResult> {
         sharepointEnabled: true,
         defaultTeamId: "default-team-id",
       },
-    },
-  });
-
-  // Create QuickBooks integration
-  const qbIntegration = await prisma.quickBooksIntegration.create({
-    data: {
-      realmId: "demo-realm-id",
-      accessToken: "demo-access-token",
-      refreshToken: "demo-refresh-token",
-      tokenExpiresAt: new Date(Date.now() + 3600 * 1000), // 1 hour from now
     },
   });
 
@@ -70,7 +77,6 @@ async function main(): Promise<SeedResult> {
       hireDate: new Date(),
       phone: "555-0100",
       department: "Administration",
-      qbEmployeeId: "QB-EMP-001",
     },
   });
 
@@ -86,7 +92,6 @@ async function main(): Promise<SeedResult> {
       hireDate: new Date(),
       phone: "555-0200",
       department: "Operations",
-      qbEmployeeId: "QB-EMP-002",
     },
   });
 
@@ -104,7 +109,6 @@ async function main(): Promise<SeedResult> {
           hireDate: new Date(),
           phone: `555-0${300 + index}`,
           department: "Construction",
-          qbEmployeeId: `QB-EMP-00${3 + index}`,
         },
       })
     )
@@ -137,7 +141,7 @@ async function main(): Promise<SeedResult> {
         userId: manager.id,
         role: "manager",
       },
-      ...employees.map((employee) => ({
+      ...employees.map((employee: any) => ({
         projectId: project.id,
         userId: employee.id,
         role: "worker",
@@ -153,7 +157,7 @@ async function main(): Promise<SeedResult> {
       sharepointUrl: "https://sharepoint.com/doc1",
       projectId: project.id,
       uploadedById: manager.id,
-      fileSize: 1024 * 1024, // 1MB
+      fileSize: 1024 * 1024,
       mimeType: "application/pdf",
       version: 1,
     },
@@ -193,13 +197,12 @@ async function main(): Promise<SeedResult> {
       overtimeHours: 5,
       grossPay: 2500.0,
       netPay: 1875.0,
-      qbEmployeeId: firstEmployee?.qbEmployeeId ?? "QB-EMP-DEFAULT",
+      status: "PENDING", // Optional since it's the default
     },
   });
 
   return {
     msIntegration,
-    qbIntegration,
     admin,
     manager,
     employeesCount: employees.length,
